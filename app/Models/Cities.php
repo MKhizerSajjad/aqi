@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Cities extends Model
 {
     use HasFactory;
+    protected $table = 'cities';
+    public static $snakeAttributes = false;
+
+    protected $guarded;
 }
