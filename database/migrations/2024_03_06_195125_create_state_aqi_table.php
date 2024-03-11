@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('state_aqi', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('state_id')->constrained()->onDelete('cascade');
+            $table->foreignId('city_id')->constrained()->nullable()->onDelete('cascade');
+            $table->date('date');
+            $table->time('time');
+            $table->string('timezone');
+            $table->char('data_type', 1);
+            $table->string('reporting_area');
+            $table->double('latitude', 8, 4);
+            $table->double('longitude', 8, 4);
+            $table->string('parameter');
+            $table->unsignedSmallInteger('aqi');
+            $table->string('category');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('state_aqi');
+    }
+};
