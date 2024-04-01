@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('aqi:all-data')->hourlyAt(0)->withoutOverlapping();
+        $schedule->command('aqi:store-city-data')->hourlyAt(20)->withoutOverlapping();
+        $schedule->command('aqi:store-state-data')->hourlyAt(40)->withoutOverlapping();
     }
 
     /**
