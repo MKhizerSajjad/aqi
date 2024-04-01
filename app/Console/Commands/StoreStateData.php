@@ -57,11 +57,16 @@ class StoreStateData extends Command
 
             if(!empty($aqiData)) {
 
-                $datetime = intval($aqiData['fileWrittenDateTime']);
-                $citiesData = $aqiData['reportingAreas'];
+                $dateString = $aqiData['fileWrittenDateTime'];
+                $dateTime = \DateTime::createFromFormat("Ymd\THis\Z", $dateString);
+                $date = $dateTime->format("Y-m-d");
+                $time = $dateTime->format("H:i:s");
 
-                $date = date('Y-m-d', $datetime);
-                $time = date('H:i:s', $datetime);
+                // dd($formattedDateTime);
+                // $date = date('Y-m-d', $dateTime);
+                // $time = date('H:i:s', $dateTime);
+
+                $citiesData = $aqiData['reportingAreas'];
 
                 // Process each AQI data and store in the database
                 foreach ($citiesData as $data) {
@@ -143,13 +148,13 @@ class StoreStateData extends Command
                             'station_name' => $data['station_name'] ?? null,
                             'city_name' => $city->name?? null,
                             'city_id' => $city->id?? null,
-                            'state_name' => $city->state_code ?? null,
+                            'state_name' => $city->state_code .' - '. $state->name ?? null,
                             'state_id' => $state->id,
                             'country_name' => $city->country_code ?? null,
                             'country_id' => $state->country_id,
                             'timezone_name' => $data['timezone'] ?? null,
                             'source' => $data['source'] ?? 'Air Now Govt.',
-                            'source_url' => 'https://airnowgovapi.com',
+                            'source_url' => 'https://airnowgovapi.com/andata/States/',
                             'status' => $data['status'] ?? 0,
                             'is_include' => $data['is_include'] ?? 0,
                             'latitude' => $city->latitude,

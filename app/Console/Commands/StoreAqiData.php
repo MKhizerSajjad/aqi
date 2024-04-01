@@ -46,9 +46,14 @@ class StoreAqiData extends Command
             //     "Content-Type: application/json"
             // ]);
 
+            // dd($response->json());
             $aqiData = $response->json();
+            // dd($aqiData);
 
+            // && ($aqiData->status != 404)
             if(!empty($aqiData)) {
+                // dd($state);
+                // dd($aqiData);
 
                 // Process each AQI data and store in the database
                 foreach ($aqiData as $data) {
@@ -126,7 +131,7 @@ class StoreAqiData extends Command
                         // 'is_india' => $data['is_india'] ?? 0,
                         // 'uid' => $data['uid'] ?? null,
                         // 'aqi_in' => $data['aqi_in'] ?? null,
-                        'aqi' => $data['aqi'] ?? null,
+                        // 'aqi' => $data['aqi'] ?? null,
                         'pm25' => ($data['parameter'] == 'PM2.5' && isset($data['aqi'])) ? $data['aqi'] : null,
                         'pm25_status' => $data['parameter'] == 'PM2.5' ? $data['category'] : null,
                         'pm1' => ($data['parameter'] == 'PM1' && isset($data['aqi'])) ? $data['aqi'] : null,
@@ -135,14 +140,14 @@ class StoreAqiData extends Command
                         'pm10_status' => $data['parameter'] == 'pm10' ? $data['category'] : null,
                         't' => $data['t'] ?? null,
                         't_status' => $data['t'] ?? null,
-                        'h' => $data['h'] ?? null,
-                        'h_status' => $data['h'] ?? null,
-                        'co' => $data['co'] ?? null,
-                        'co_status' => $data['co'] ?? null,
-                        'dew' => $data['dew'] ?? null,
-                        'dew_status' => $data['dew'] ?? null,
-                        'no2' => $data['no2'] ?? null,
-                        'no2_status' => $data['no2'] ?? null,
+                        // 'h' => $data['h'] ?? null,
+                        // 'h_status' => $data['h'] ?? null,
+                        // 'co' => $data['co'] ?? null,
+                        // 'co_status' => $data['co'] ?? null,
+                        // 'dew' => $data['dew'] ?? null,
+                        // 'dew_status' => $data['dew'] ?? null,
+                        // 'no2' => $data['no2'] ?? null,
+                        // 'no2_status' => $data['no2'] ?? null,
                         'o3' => ($data['parameter'] == 'OZONE' && isset($data['aqi'])) ? $data['aqi'] : null,
                         'o3_status' => $data['parameter'] == 'OZONE' ? $data['category'] : null,
                         // 'p' => $data['p'] ?? null,
@@ -170,20 +175,20 @@ class StoreAqiData extends Command
                         'station_name' => $data['station_name'] ?? null,
                         // 'address' => $data['address'] ?? null,
                         // 'address_json' => $data['address_json'] ?? null,
-                        // 'city_name' => $data['city_name'] ?? null,
-                        'city_id' => $city->id?? null,
-                        'state_name' => $data['state_name'] ?? null,
+                        'city_name' => $city->name ?? null,
+                        'city_id' => $city->id ?? null,
+                        'state_name' => $state->iso2 .' - '. $state->name ?? null,
                         'state_id' => $state->id,
-                        // 'country_name' => $data['country_name'] ?? null,
+                        'country_name' => $city->country_code ?? null,
                         'country_id' => $state->country_id,
                         'elevation' => $data['elevation'] ?? null,
                         'timezone_name' => $data['timezone'] ?? null,
                         'source' => $data['source'] ?? 'Air Now Govt.',
-                        'source_url' => 'https://airnowgovapi.com',
+                        'source_url' => 'https://airnowgovapi.com/reportingarea/get_state?state_code=',
                         'status' => $data['status'] ?? 0,
                         'is_include' => $data['is_include'] ?? 0,
-                        'latitude' => $data['latitude'],
-                        'longitude' => $data['longitude'],
+                        'latitude' => $data['latitude'] ?? null,
+                        'longitude' => $data['longitude'] ?? null,
                         'tmp_status' => $data['tmp_status'] ?? 0,
                         // 'time_string' => $data['time_string'],
                         // 'last_updated' => $data['last_updated'],
@@ -191,24 +196,24 @@ class StoreAqiData extends Command
                     ];
 
                     // dd($stateAqiData);
+                    AqiWorldLocations::upsert(
+                        $stateAqiData,
+                        ['state_id', 'city_id', 'date', 'time'],
+                        [
+                            'date', 'time', 'dev_type', /*'function_name', 'is_india', 'uid', 'aqi_in',*/ 'aqi', 'pm25',
+                            'pm25_status', 'pm1', 'pm1_status', 'pm10', 'pm10_status', 't', 't_status', 'h', 'h_status',
+                            'co', 'co_status', 'dew', 'dew_status', 'no2', 'no2_status', 'o3', 'o3_status', 'p',
+                            /*'p_status', 'so2', 'so2_status', 'r', 'r_status', 'w', 'w_status', 'wd', 'wd_status',
+                            'noise', 'noise_status', 'wg', 'wg_status', 'cloudiness', 'cloudiness_status', 'real_time', 'weather_data', 'forecast',
+                            'orignal_realtime', 'orignal_forecast',*/ 'location_name', 'station_name', /*'address', 'address_json', 'city_name',*/ 'city_id', 'state_name',
+                            'state_id', /*'country_name',*/ 'country_id', 'elevation', 'timezone_name', 'source', 'source_url', 'status', 'is_include',
+                            'latitude', 'longitude', 'tmp_status', // 'time_string', // 'last_updated', // 'utc_datetime'
+                        ]
+                    );
                 }
 
-                AqiWorldLocations::upsert(
-                    $stateAqiData,
-                    ['state_id', 'city_id', 'date', 'time'],
-                    [
-                        'date', 'time', 'dev_type', /*'function_name', 'is_india', 'uid', 'aqi_in',*/ 'aqi', 'pm25',
-                        'pm25_status', 'pm1', 'pm1_status', 'pm10', 'pm10_status', 't', 't_status', 'h', 'h_status',
-                        'co', 'co_status', 'dew', 'dew_status', 'no2', 'no2_status', 'o3', 'o3_status', 'p',
-                        /*'p_status', 'so2', 'so2_status', 'r', 'r_status', 'w', 'w_status', 'wd', 'wd_status',
-                        'noise', 'noise_status', 'wg', 'wg_status', 'cloudiness', 'cloudiness_status', 'real_time', 'weather_data', 'forecast',
-                        'orignal_realtime', 'orignal_forecast',*/ 'location_name', 'station_name', /*'address', 'address_json', 'city_name',*/ 'city_id', 'state_name',
-                        'state_id', /*'country_name',*/ 'country_id', 'elevation', 'timezone_name', 'source', 'source_url', 'status', 'is_include',
-                        'latitude', 'longitude', 'tmp_status', // 'time_string', // 'last_updated', // 'utc_datetime'
-                    ]
-                );
 
-                $this->info('Done for state : ' . $state->iso2);
+                $this->info(' 1 - Done for state : ' . $state->iso2);
             }
 
         }

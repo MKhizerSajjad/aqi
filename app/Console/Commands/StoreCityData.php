@@ -32,8 +32,8 @@ class StoreCityData extends Command
     {
         $currentDate = date('Y/n/j');
         // Get states from countries 33 and 34
-        $cities = Cities::whereIn('country_id', [233])->where('id', 122010)->where('state_id', 1456)
-            ->select('id', 'name', 'state_id', 'state_code', 'country_id', 'latitude', 'longitude')->get();
+        $cities = Cities::whereIn('country_id', [233]) // ->where('id', 122010)->where('state_id', 1456)
+            ->select('id', 'name', 'state_id', 'state_code', 'country_id', 'country_code', 'latitude', 'longitude')->get();
 
         foreach ($cities as $city) {
 
@@ -53,21 +53,23 @@ class StoreCityData extends Command
 
                 $cityAqiData[] = [
                     'date' => $date,
+                    //'category' => $aqiData['category'], // add it in migra
                     't' => $aqiData['temperature'],
                     'h' => $aqiData['humidity'],
+                    'p' => $aqiData['pressure'],
                     'w' => $aqiData['windSpeed'],
                     'wd' => $aqiData['windDirection'],
                     'cloudiness' => $aqiData['cloudiness'],
                     'cloudiness_status' => $aqiData['description'],
                     'city_name' => $city->name ?? null,
                     'city_id' => $city->id ?? null,
-                    // 'state_name' => $city->state_code ?? null,
+                    'state_name' => $city->state_code ?? null,
                     'state_id' => $city->state_id,
-                    // 'country_name' => $city->country_code ?? null,
-                    // 'country_id' => $state->country_id,
+                    'country_name' => $city->country_code ?? null,
+                    'country_id' => $city->country_id,
                     // 'timezone_name' => $data['timezone'] ?? null,
                     'source' => $data['source'] ?? 'Air Now Govt.',
-                    'source_url' => 'https://airnowgovapi.com',
+                    'source_url' => 'https://airnowgovapi.com/weather/get',
                     // 'status' => $data['status'] ?? 0,
                     // 'is_include' => $data['is_include'] ?? 0,
                     'latitude' => $city->latitude,
@@ -82,12 +84,13 @@ class StoreCityData extends Command
                     $cityAqiData,
                     ['state_id', 'city_id', 'date'/*, 'time'*/],
                     [
-                        't', 'h', 'w', 'wd', 'cloudiness', 'cloudiness_status', 'city_name', 'city_id', 'state_id',
-                        'source', 'source_url', 'latitude', 'longitude'
+                        /*'category',*/ 't', 'h', 'p', 'w', 'wd', 'cloudiness', 'cloudiness_status', 'city_name',
+                        'city_id','state_name', 'state_id', 'country_name', 'country_id', 'source', 'source_url',
+                        'latitude', 'longitude'
                     ]
                 );
 
-                $this->info('Done for state : ' . $city->name);
+                $this->info(' 2 - Done for state : ' . $city->name);
             }
         }
 
